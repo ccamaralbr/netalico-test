@@ -83,7 +83,7 @@
                 <div class="product-single__thumbnails-slider-track" data-slider-track>
               {% endif %}
 
-              {% for media in product.media %}
+              {% for media in product.media limit:3 %}
                 <li class="product-single__thumbnails-item product-single__thumbnails-item--{{ section.settings.media_size }} {% if enable_thumbnail_slides == true %} product-single__thumbnails-item-slide{% endif %} js"{% if enable_thumbnail_slides == true %} data-slider-slide-index="{{ forloop.index0 }}" data-slider-item{% endif %}>
                   <a href="{{ media.preview_image | img_url: product_image_zoom_size, scale: product_image_scale }}"
                     class="text-link product-single__thumbnail product-single__thumbnail--{{ section.id }}"
@@ -134,7 +134,7 @@
     <div class="grid__item {{ product_description_width }}">
       <div class="product-single__meta">
 
-        <h1 class="product-single__title">{{ product.title }}</h1>
+        <h1 class="product-single__title">{{ product.title | downcase }}</h1>
         <script>window.performance.mark('debut:product:title_visible');</script>
 
           <div class="product__price">
@@ -165,13 +165,16 @@
                   <div class="selector-wrapper js product-form__item">
                     <label for="SingleOptionSelector-{{ forloop.index0 }}">
                       {{ option.name }}
+                      <span>
+                        {{ option.selected_value }}
+                      </span>
                     </label>
                     <select class="single-option-selector single-option-selector-{{ section.id }} product-form__input"
                       id="SingleOptionSelector-{{ forloop.index0 }}"
                       data-index="option{{ forloop.index }}"
                     >
                       {% for value in option.values %}
-                        <option value="{{ value | escape }}"{% if option.selected_value == value %} selected="selected"{% endif %}>{{ value }}</option>
+                        <option value="{{ value | escape }}"{% if option.selected_value == value %} selected="selected"{% endif %}>{{ value }}<option>
                       {% endfor %}
                     </select>
                   </div>
@@ -190,15 +193,30 @@
             </select>
 
             {% if section.settings.show_quantity_selector %}
-              <div class="product-form__controls-group">
-                <div class="product-form__item">
-                  <label for="Quantity-{{ section.id }}">{{ 'products.product.quantity' | t }}</label>
-                  <input type="number" id="Quantity-{{ section.id }}"
+            
+              {% comment %} By-passing current content not needed for customization @Celso
+                
+                <div class="product-form__controls-group">
+                  <div class="product-form__item">
+                    <label for="Quantity-{{ section.id }}">{{ 'products.product.quantity' | t }}</label>
+                    <input type="number" id="Quantity-{{ section.id }}"
                     name="quantity" value="1" min="1" pattern="[0-9]*"
                     class="product-form__input product-form__input--quantity" data-quantity-input
-                  >
+                    >
+                  </div>
+                </div>
+            {% endcomment %}
+              
+              {% comment %} Custom content for theme customization @Celso {% endcomment %}
+              <div class="qtydiv">
+                <div class="qtybox">
+                  <span id="btnMinus" class="btnqty qtyminus icon icon-minus" onclick="myFunctionMinus()">_</span>
+                  <input type="number" id="quantity" name="quantity" value="1" step="1" min="1" class="quantity-selector quantity-input">
+                  <span id="btnPlus" class="btnqty qtyplus icon icon-plus" onclick="myFunctionPlus()">+</span>
                 </div>
               </div>
+              <label for="Quantity-{{ section.id }}">{{ 'products.product.quantity' | t }}</label>
+              
             {% endif %}
 
             <div class="product-form__error-message-wrapper product-form__error-message-wrapper--hidden{% if section.settings.enable_payment_button %} product-form__error-message-wrapper--has-payment-button{% endif %}"
@@ -232,9 +250,11 @@
                     {% include 'icon-spinner' %}
                   </span>
                 </button>
+
                 {% if section.settings.enable_payment_button %}
                   {{ form | payment_button }}
                 {% endif %}
+
               </div>
             </div>
           {% endform %}
@@ -274,6 +294,7 @@
         {% if section.settings.show_share_buttons %}
           {% include 'social-sharing', share_title: product.title, share_permalink: product.url, share_image: product.featured_media %}
         {% endif %}
+
     </div>
   </div>
 </div>
@@ -287,6 +308,15 @@
   </script>
 {% endunless %}
 
+{% comment %}
+  Generating variant inventory @Celso
+{% endcomment %}
+<script>       
+var inv_qty = {};
+{% for var in product.variants %}
+  inv_qty[{{- var.id -}}] = {{ var.inventory_quantity | default: 0 }};
+{% endfor %}
+</script>            
 
 
 {% schema %}
@@ -341,7 +371,7 @@
         "zh-CN": "显示数量选择器",
         "zh-TW": "顯示數量選擇器"
       },
-      "default": false
+      "default": true
     },
     {
       "type": "checkbox",
@@ -420,7 +450,7 @@
         "zh-CN": "每位客户都可在您商店提供的付款方式中看到他们的首选付款方式，例如 PayPal 或 Apple Pay。[了解详细信息](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
         "zh-TW": "每位顧客都可以在您商店內開放使用的付款方式中看見他們偏好使用的方式，如 PayPal、Apple Pay 等。[深入瞭解](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)"
       },
-      "default": true
+      "default": false
     },
     {
       "type": "checkbox",
@@ -448,7 +478,7 @@
         "zh-CN": "显示社交分享按钮",
         "zh-TW": "顯示社群分享按鈕"
       },
-      "default": true
+      "default": false
     },
     {
       "type": "header",
@@ -631,7 +661,7 @@
           }
         }
       ],
-      "default": "medium"
+      "default": "full"
     },
     {
       "type": "checkbox",

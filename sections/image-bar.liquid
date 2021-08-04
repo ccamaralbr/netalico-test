@@ -30,13 +30,24 @@
       {% else %}
         <div class="image-bar__item">
       {% endif %}
+      
       <div class="image-bar__content{% if block.settings.cta_label != blank or block.settings.link != blank %} image-bar__overlay{% endif %}">
-        {% if block.settings.image == blank %}
-          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
-        {% endif %}
+        {% if block.settings.icon != blank %}
 
-        {% if block.settings.cta_label != blank %}
+          {% comment %} By-passing current content not needed for customization @Celso
+          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+          {% endcomment %}
+        
+      {% endif %}
+
+          {% comment %} By-passing current content not needed for customization
+            <p>{% include 'block.settings.icon' %}</p>
+          {% endcomment %}
+        
+          {% if block.settings.cta_label != blank %}
           <div class="image-bar__text">
+            {% capture counter %}{% cycle 'icon-cargo', 'icon-returns', 'icon-diamond' %}{% endcapture %}
+            <p>{% include counter %}</p>
             <h3 class="image-bar__caption">{{ block.settings.cta_label | escape }}</h3>
           </div>
         {% endif %}
@@ -87,7 +98,7 @@
     "zh-TW": "圖庫"
   },
   "class": "index-section index-section--flush",
-  "max_blocks": 4,
+  "max_blocks": 3,
   "settings": [
     {
       "type": "select",

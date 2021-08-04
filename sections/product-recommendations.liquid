@@ -8,7 +8,7 @@
           </div>
         {%- endif -%}
         <ul class="grid grid--uniform grid--view-items">
-          {%- for product in recommendations.products -%}
+          {%- for product in recommendations.products limit:2 -%}
             <li class="grid__item small--one-half medium-up--one-quarter">
               {% include 'product-card-grid', max_height: 250, product: product, show_vendor: section.settings.show_vendor %}
             </li>
@@ -128,7 +128,7 @@
         "cs": "Mohlo by se vám také líbit",
         "da": "Du vil muligvis også synes om",
         "de": "Das könnte dir auch gefallen",
-        "en": "You may also like",
+        "en": "You May Also Like",
         "es": "También te puede interesar",
         "fi": "Saatat pitää myös näistä",
         "fr": "Vous pourriez aimer également",
